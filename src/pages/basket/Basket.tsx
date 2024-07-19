@@ -1,14 +1,19 @@
-// @flow
 import * as React from 'react';
 import styled from 'styled-components';
 import { theme } from '../../styles/theme';
 import { Button } from '@mui/material';
-import {useBasket} from "../../components/BasketContext";
+import { useBasket } from "../../components/BasketContext";
+import { useNavigate } from 'react-router-dom';
 
 type Props = {};
 
 export const Basket = (props: Props) => {
-	const { basket, removeProductToBasket } = useBasket(); // Получаем товары в корзине
+	const { basket, removeProductToBasket } = useBasket();
+	const navigate = useNavigate();
+
+	const handleOrderClick = () => {
+		navigate('/order');
+	};
 
 	return (
 		<StyledBasket>
@@ -24,12 +29,12 @@ export const Basket = (props: Props) => {
 								<ProductTitle>{product.title}</ProductTitle>
 								<ProductPrice>{product.price}₽</ProductPrice>
 							</ProductDetails>
-							<StyledButton onClick={()=>removeProductToBasket(product.id)}>Remove</StyledButton>
+							<StyledButton onClick={() => removeProductToBasket(product.id)}>Remove</StyledButton>
 						</ProductCard>
 					))}
 				</ProductList>
 			)}
-			<StyledButton>Оформить заказ</StyledButton>
+			<StyledButton onClick={handleOrderClick}>Оформить заказ</StyledButton>
 		</StyledBasket>
 	);
 };
@@ -98,3 +103,4 @@ const StyledButton = styled(Button)`
   }
 `;
 
+export default Basket;

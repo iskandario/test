@@ -9,6 +9,7 @@ import ProductDetail from "./pages/homePage/layout/catalog/productDetail/Product
 import { PageNotFound } from "./components/404/PageNotFound";
 import { Footer } from "./components/footer/Footer";
 import { BasketProvider } from './components/BasketContext';
+import OrderForm from "./pages/basket/OrderForm";
 
 export type ProductType = {
 	id: string;
@@ -43,6 +44,7 @@ function App() {
 				<Routes>
 					<Route path="/" element={<HomePage products={products} />} />
 					<Route path="/Basket" element={<Basket />} />
+					<Route path="/order" element={<OrderForm />} /> {/* Новый маршрут */}
 					<Route path="/product/:id" element={<ProductDetail products={products} />} />
 					<Route path="/404" element={<PageNotFound />} />
 					<Route path="*" element={<Navigate to="/404" />} />
