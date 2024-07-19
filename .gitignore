@@ -5,12 +5,14 @@
 /.idea
 /.pnp
 .pnp.js
-
+src/firebase.ts
 # testing
 /coverage
 
 # production
 /build
+# Ignoring firebase config file
+src/firebase/firebase.js
 
 # misc
 .DS_Store

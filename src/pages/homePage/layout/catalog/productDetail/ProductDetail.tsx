@@ -1,21 +1,23 @@
-import * as React from 'react';
+import React from 'react';
 import styled from 'styled-components';
-import {useParams, useNavigate} from 'react-router-dom';
-import {ProductType} from '../../../../../App';
-import {Button} from '@mui/material';
-import {theme} from '../../../../../styles/theme';
+import { useParams, useNavigate } from 'react-router-dom';
+import { ProductType } from '../../../../../App';
+import { Button } from '@mui/material';
+import { theme } from '../../../../../styles/theme';
 import ImageGallery from 'react-image-gallery';
-import "react-image-gallery/styles/css/image-gallery.css";
-import {GlobalStyle} from '../../../../../styles/GlobalStyle';
+import 'react-image-gallery/styles/css/image-gallery.css';
+import { GlobalStyle } from '../../../../../styles/GlobalStyle';
+import {useBasket} from "../../../../../components/BasketContext";
 
 type ProductDetailProps = {
-	products: ProductType[]
-}
-const ProductDetail = ({products}: ProductDetailProps) => {
-	const {id} = useParams<{ id: string }>();
+	products: ProductType[];
+};
+
+const ProductDetail = ({ products }: ProductDetailProps) => {
+	const { id } = useParams<{ id: string }>();
 	const product = products.find((product) => product.id === id);
 	const navigate = useNavigate();
-
+	const { addToBasket } = useBasket(); // Получаем функцию добавления в корзину
 
 	const galleryRef = React.useRef<ImageGallery>(null);
 
@@ -52,9 +54,13 @@ const ProductDetail = ({products}: ProductDetailProps) => {
 		}
 	};
 
+	const handleAddToBasket = () => {
+		addToBasket(product);
+	};
+
 	return (
 		<StyledProductDetail>
-			<GlobalStyle/>
+			<GlobalStyle />
 			<StyledButton onClick={() => navigate(-1)}>Вернуться</StyledButton>
 			<StyledImageGalleryWrapper onClick={handleImageClick}>
 				<ImageGallery
@@ -73,7 +79,7 @@ const ProductDetail = ({products}: ProductDetailProps) => {
 			<Price>{product.price}₽</Price>
 			<Sizes>Доступные размеры: {product.size}</Sizes>
 			<Compound>Состав: {product.compound}</Compound>
-			<StyledButton>Добавить в корзину</StyledButton>
+			<StyledButton onClick={handleAddToBasket}>Добавить в корзину</StyledButton>
 		</StyledProductDetail>
 	);
 };
@@ -108,7 +114,7 @@ const Compound = styled.p`
   margin: 10px 0;
 `;
 
-const StyledButton = styled(Button)`
+export const StyledButton = styled(Button)`
   && {
     font-size: 16px;
     background-color: ${theme.mainBackgroundColor};
