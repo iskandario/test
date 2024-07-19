@@ -1,36 +1,21 @@
 import * as React from 'react';
-import { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { useParams, useNavigate } from 'react-router-dom';
-import { doc, getDoc } from 'firebase/firestore';
-import { db } from '../../../../../firebase';
-import { ProductType } from '../../../../../App';
-import { Button } from '@mui/material';
-import { theme } from '../../../../../styles/theme';
+import {useParams, useNavigate} from 'react-router-dom';
+import {ProductType} from '../../../../../App';
+import {Button} from '@mui/material';
+import {theme} from '../../../../../styles/theme';
 import ImageGallery from 'react-image-gallery';
 import "react-image-gallery/styles/css/image-gallery.css";
-import { GlobalStyle } from '../../../../../styles/GlobalStyle';
+import {GlobalStyle} from '../../../../../styles/GlobalStyle';
 
-const ProductDetail = ({ products }: { products: ProductType[] }) => {
-	const { id } = useParams();
+type ProductDetailProps = {
+	products: ProductType[]
+}
+const ProductDetail = ({products}: ProductDetailProps) => {
+	const {id} = useParams<{ id: string }>();
+	const product = products.find((product) => product.id === id);
 	const navigate = useNavigate();
-	const [product, setProduct] = useState<ProductType | null>(null);
 
-	useEffect(() => {
-		const fetchProduct = async () => {
-			if (id) {
-				const productDoc = doc(db, 'products', id);
-				const productSnap = await getDoc(productDoc);
-				if (productSnap.exists()) {
-					setProduct(productSnap.data() as ProductType);
-				} else {
-					console.log('No such document!');
-				}
-			}
-		};
-
-		fetchProduct();
-	}, [id]);
 
 	const galleryRef = React.useRef<ImageGallery>(null);
 
@@ -69,7 +54,7 @@ const ProductDetail = ({ products }: { products: ProductType[] }) => {
 
 	return (
 		<StyledProductDetail>
-			<GlobalStyle />
+			<GlobalStyle/>
 			<StyledButton onClick={() => navigate(-1)}>Вернуться</StyledButton>
 			<StyledImageGalleryWrapper onClick={handleImageClick}>
 				<ImageGallery

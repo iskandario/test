@@ -1,16 +1,21 @@
 // HomePage.tsx
 import * as React from 'react';
 import styled from 'styled-components';
-import { Main } from './layout/main/Main';
-import { Catalog } from './layout/catalog/Catalog';
-import { Footer } from '../../components/footer/Footer';
+import {Main} from './layout/main/Main';
+import {Catalog} from './layout/catalog/Catalog';
+import {Footer} from '../../components/footer/Footer';
+import {ProductType} from "../../App";
 
-export const HomePage = () => {
+type HomePageProps = {
+	products: ProductType[]
+}
+
+export const HomePage = ({products}: HomePageProps) => {
 	return (
 		<StyledMainDiv>
-			<Main />
-			<Catalog />
-			<Footer />
+			<Main/>
+			<Catalog products={products}/>
+			<Footer/>
 		</StyledMainDiv>
 	);
 };
