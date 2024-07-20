@@ -4,6 +4,7 @@ import { theme } from '../../styles/theme';
 import { Button } from '@mui/material';
 import { useBasket } from "../../components/BasketContext";
 import { useNavigate } from 'react-router-dom';
+import {ProductType} from "../../App";
 
 type Props = {};
 
@@ -12,8 +13,26 @@ export const Basket = (props: Props) => {
 	const navigate = useNavigate();
 
 	const handleOrderClick = () => {
-		navigate('/order');
+		// Передача товаров и суммы заказа через navigate
+		navigate('/order', {
+			state: {
+				products: Object.values(groupedBasket),
+				total: totalBasket
+			}
+		});
 	};
+
+	// Сгруппируем товары по их ID
+	const groupedBasket = basket.reduce((acc, product) => {
+		if (acc[product.id]) {
+			acc[product.id].quantity += 1;
+		} else {
+			acc[product.id] = { ...product, quantity: 1 };
+		}
+		return acc;
+	}, {} as Record<string, ProductType & { quantity: number }>);
+
+	let totalBasket: number = 0;
 
 	return (
 		<StyledBasket>
@@ -22,19 +41,26 @@ export const Basket = (props: Props) => {
 				<EmptyBasket>Ваша корзина пуста</EmptyBasket>
 			) : (
 				<ProductList>
-					{basket.map((product) => (
-						<ProductCard key={product.id}>
-							<ProductImage src={product.imgUrl} alt={product.title} />
-							<ProductDetails>
-								<ProductTitle>{product.title}</ProductTitle>
-								<ProductPrice>{product.price}₽</ProductPrice>
-							</ProductDetails>
-							<StyledButton onClick={() => removeProductToBasket(product.id)}>Remove</StyledButton>
-						</ProductCard>
-					))}
+					{Object.values(groupedBasket).map((product) => {
+						totalBasket += product.price * product.quantity;
+						return (
+							<ProductCard key={product.id}>
+								<ProductImage src={product.imgUrl} alt={product.title} />
+								<ProductDetails>
+									<ProductTitle>{product.title}</ProductTitle>
+									<ProductPrice>{product.price * product.quantity}₽</ProductPrice>
+									<ProductQuantity>{product.quantity} шт</ProductQuantity>
+								</ProductDetails>
+								<StyledButton onClick={() => removeProductToBasket(product.id)}>x</StyledButton>
+							</ProductCard>
+						);
+					})}
 				</ProductList>
 			)}
-			<StyledButton onClick={handleOrderClick}>Оформить заказ</StyledButton>
+			<SummaryDiv>
+				<span>Всего: {totalBasket}₽</span>
+				<StyledButton onClick={handleOrderClick}>Оформить заказ</StyledButton>
+			</SummaryDiv>
 		</StyledBasket>
 	);
 };
@@ -86,21 +112,33 @@ const ProductPrice = styled.p`
   color: ${theme.mainTextColor};
 `;
 
+const ProductQuantity = styled.p`
+  margin: 5px 0;
+  font-size: 18px;
+  color: ${theme.secondaryTextColor};
+`;
+
 const StyledButton = styled(Button)`
   && {
     font-size: 16px;
     background-color: ${theme.mainBackgroundColor};
-    color: ${theme.mainTextColor};
+    color: ${theme.secondaryTextColor};
     border-radius: 8px;
     padding: 8px 16px;
-    margin-top: 20px;
 
     &:hover {
       background-color: transparent;
-      color: ${theme.secondaryTextColor};
+      color: ${theme.mainTextColor};
       box-shadow: none;
     }
   }
+`;
+
+const SummaryDiv = styled.div`
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 `;
 
 export default Basket;

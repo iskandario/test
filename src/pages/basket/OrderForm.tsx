@@ -1,17 +1,28 @@
-// @flow
 import * as React from 'react';
 import styled from 'styled-components';
 import { theme } from '../../styles/theme';
 import { Button } from '@mui/material';
-import {useForm} from "react-hook-form";
+import { useForm } from "react-hook-form";
+import { useLocation } from 'react-router-dom';
+import {ProductType} from "../../App";
 
 type OrderFormProps = {};
 
 const OrderForm = (props: OrderFormProps) => {
 	const { register, handleSubmit, formState: { errors } } = useForm();
+	const location = useLocation();
+	const { products, total } = location.state as {
+		products: (ProductType & { quantity: number })[];
+		total: number;
+	};
 
 	const onSubmit = (data: any) => {
-		console.log(data);
+		const orderData = {
+			...data,
+			products,
+			total
+		};
+		console.log(orderData);
 		// Здесь обрабатывать данные формы, например, отправить их на сервер
 	};
 
