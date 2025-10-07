@@ -216,6 +216,28 @@ const ProductDetail = ({ products }: ProductDetailProps) => {
             Длина
           </>
         );
+
+        case 'back_length':
+        return (
+          <>
+            Длина по спинке
+          </>
+        );
+
+        case 'hand_length':
+        return (
+          <>
+            Длина рукава
+          </>
+        );
+        case 'shoulders':
+        return (
+          <>
+            Ширина
+            по плечам
+          </>
+        );
+
       case 'sleeve_length':
         return (
           <>
@@ -223,17 +245,18 @@ const ProductDetail = ({ products }: ProductDetailProps) => {
             рукава
           </>
         );
+
       case 'chest_circumference':
         return (
           <>
-            Обхват
+            Полуобхват
             груди
           </>
-        );;
+        );
       case 'waist_circumference':
         return (
           <>
-            Обхват
+            Полуобхват
             талии
           </>
         );
@@ -444,7 +467,7 @@ const ValentineLabelBlock = styled.div`
 
 const SizeSelectorWrapper = styled.div`
   position: relative; 
-  margin-bottom: 20px; 
+  margin-top: 10px; 
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -608,7 +631,7 @@ export const SizeSelector = styled(Compound)`
   font-size: calc(0.7vw + *px);   
 
   @media (max-width: 768px) {
-    margin-top: 0;
+    margin-top: 5px;
     justify-content: flex-end;
     font-size: calc(1.2vw + 8px); /* выровнено по Compound */
   }
@@ -674,7 +697,7 @@ const RightGrid = styled(Grid)`
 
 &&{
 
- 
+ margin-left: -5vw;
    
 `;
 
@@ -696,6 +719,7 @@ const StyledAddToBasketButton = styled(StyledButton)`
 
      @media (max-width: 768px) {
      font-size: calc(1.2vw + 8px);
+     margin-left: 4vw;
      }
   }
 `;
@@ -707,15 +731,23 @@ const SizeChartWrapper = styled.table`
   width: 90%;
   border-collapse: collapse;
 
-  @media (max-width:768px) {
-    width: 100%;
+@media (max-width:768px) {
+  margin-top: 0px;
+  width: 105%;
+  margin-left: 4vw;
+
+  th, td {
+    white-space: normal !important;  /* Add !important to override */
+    word-break: break-word !important;
   }
+}
 
 
 
   th, td {
     padding: 8px; /* Отступы для удобства чтения */
     text-align: left;
+
   }
 
   th {
