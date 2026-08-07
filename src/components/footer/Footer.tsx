@@ -13,34 +13,7 @@ type Props = {};
 export const Footer = (props: Props) => {
   return (
     <StyledFooter>
-      <div>
-
-      <LanguageSwitcher>
-          <span>Ru / &nbsp;&nbsp;&nbsp; Rub</span>
-        </LanguageSwitcher>
-
-        <SocialMedia>
-          <a href="https://www.instagram.com/vyacheslavna.brand?igsh=MTN3aHE4NjBoM3R6aQ==" target="_blank" rel="noopener noreferrer">
-            <span>{media.inst.toUpperCase()} </span>
-          </a>
-          <a href="https://t.me/vyacheslavnabrand" target="_blank" rel="noopener noreferrer">
-            <span>{media.tg.toUpperCase()}</span>
-          </a>
-        </SocialMedia>
-
-        <RightAligned>
-          <small className="made-by">
-            Made by <StyledLink href="https://t.me/cvcvrs" target="_blank" rel="noopener noreferrer">
-            cvcvrs 
-            </StyledLink> 
-			<span> & </span>  
-            <StyledLink href="https://www.instagram.com/iskandar0_o?igsh=MWpybXJleWg3cW9teQ%3D%3D&utm_source=qr" target="_blank" rel="noopener noreferrer">
-              isko
-            </StyledLink>
-          </small>
-          <small className="brand">© 2023 VYACHESLÁVNA BRAND</small>
-        </RightAligned>
-      </div>
+     
     </StyledFooter>
   );
 };

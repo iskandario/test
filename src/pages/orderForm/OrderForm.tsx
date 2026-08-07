@@ -9,7 +9,7 @@ import { theme } from "../../_globalStyles/theme";
 import BackButton from "../../components/BackButton";
 
 
-interface OrderFormProps {}
+interface OrderFormProps { }
 
 interface FormData {
     lastName: string;
@@ -30,57 +30,49 @@ const OrderForm: React.FC<OrderFormProps> = () => {
         total: number;
     };
 
-    const onSubmit = async (data: FormData) => {
-      const customerName = `${data.lastName} ${data.firstName} ${data.middleName || ''}`.trim();
-  
-      const orderData = {
-          ...data,
-          customerName,
-          products,
-          total,
-      };
-  
-      // Логирование данных заказа, включая комментарий
-      console.log('Отправляемые данные заказа:', orderData);
-  
-      try {
-          const response = await fetch('https://vyacheslavnabrand.ru/process_payment.php', {
-              method: 'POST',
-              headers: {
-                  'Content-Type': 'application/json',
-              },
-              body: JSON.stringify(orderData),
-          });
-  
-          if (!response.ok) {
-              const errorText = await response.text();
-              console.error('Ошибка создания платежа:', errorText);
-              throw new Error(`Ошибка создания платежа: ${response.status}`);
-          }
-  
-          const responseText = await response.text();
-          try {
-              const result = JSON.parse(responseText);
-              if (result.payment?.confirmation?.confirmation_url) {
-                  window.open(result.payment.confirmation.confirmation_url, '_self');
-              } else {
-                  console.error('Ошибка создания платежа', result);
-              }
-          } catch (err) {
-              console.error('Ошибка при обработке JSON ответа:', err);
-          }
-      } catch (error) {
-          console.error('Ошибка при отправке формы:', error);
-      }
+   const onSubmit = async (data: FormData) => {
+  const orderData = {
+    ...data,
+    products,
+    total,
   };
+
+  console.log('Отправляемые данные заказа:', orderData);
+
+  try {
+    const response = await fetch('https://vyacheslavnabrand.ru/process_payment.php', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(orderData),
+    });
+
+    const result = await response.json();
+    console.log('PAYMENT RESPONSE:', result);
+
+    if (!response.ok || result.status !== 'success' || !result.confirmation_url) {
+      console.error('Ошибка создания платежа:', result);
+      throw new Error('Ошибка создания платежа');
+    }
+
+    // ✅ ВАЖНОЕ МЕСТО — РЕДИРЕКТ
+    window.location.href = result.confirmation_url;
+
+  } catch (error) {
+    console.error('Ошибка при отправке формы:', error);
+    alert('Ошибка при создании платежа. Попробуйте ещё раз.');
+  }
+};
+
 
     return (
         <StyledForm onSubmit={handleSubmit(onSubmit)}>
 
             <Grid container alignItems="center" justifyContent="flex-start">
-            <StyledBackButton>
-                <BackButton />
-            </StyledBackButton>
+                <StyledBackButton>
+                    <BackButton />
+                </StyledBackButton>
             </Grid>
 
             <Grid container spacing={6}> {/* Увеличиваем расстояние между столбцами и строками */}
@@ -102,7 +94,10 @@ const OrderForm: React.FC<OrderFormProps> = () => {
                 <StyledFieldGrid item xl={4} md={4} xs={12}>
                     <input placeholder={'Адрес СДЭК'} {...register("address", { required: true })} />
                     {errors.address && <span>Это поле обязательно</span>}
+                    <NoteText>Доставка оплачивается самостоятельно в пункте выдачи Сдэк (500₽)</NoteText>
                 </StyledFieldGrid>
+
+
                 <StyledFieldGrid item xl={4} md={4} xs={12}>
                     <input placeholder={'Номер телефона'} {...register("phoneNumber", { required: true })} />
                     {errors.phoneNumber && <span>Это поле обязательно</span>}
@@ -154,6 +149,23 @@ const StyledBackButton = styled.div`
 
 
 
+`;
+
+
+const NoteText = styled.div`
+  margin-top: 8px;
+  font-family: 'NEXT ART', sans-serif !important;
+  font-weight: 400;
+  /* аккуратная адаптивка */
+  font-size: clamp(11px, 1.15vw, 14px);
+  line-height: 1.4;
+  color: rgba(77, 77, 77, 0.55);
+
+  /* чуть компактнее на очень узких */
+  @media (max-width: 492px) {
+    font-size: clamp(11px, 3.4vw, 13px);
+    margin-top: 6px;
+  }
 `;
 
 

@@ -1,8 +1,6 @@
 import * as React from 'react';
 import styled from "styled-components";
 import { StoreDescription } from "./store-description/StoreDescription";
-import mainPhoto from '../../../../assets/images/mainPagePhoto.png';
-import smallmainPhoto from '../../../../assets/images/smallMainPage.png';
 
 type MainProps = {
   scrollToCatalog: () => void; 
@@ -10,17 +8,26 @@ type MainProps = {
 
 export const Main = ({ scrollToCatalog }: MainProps) => {
   return (
-    <StyledMain>
+     <StyledMain>
       <PhotoWrapper>
         <picture>
-          <source media="(max-width: 768px)" srcSet={smallmainPhoto} />
-          <StyledImg src={mainPhoto} alt="Главное фотка" />
+          <source 
+            media="(max-width: 768px)" 
+            srcSet="https://vyacheslavnabrand.ru/SOURCE/images/smallMainPage.png"
+          />
+          <StyledImg 
+            src="https://vyacheslavnabrand.ru/SOURCE/images/mainPagePhoto.png" 
+            alt="Главное фото" 
+            loading="lazy"
+          />
         </picture>
       </PhotoWrapper>
       <StoreDescription scrollToCatalog={scrollToCatalog} />
     </StyledMain>
   );
 };
+
+/* === Styles === */
 
 const PhotoWrapper = styled.div`
   position: relative;
@@ -29,17 +36,16 @@ const PhotoWrapper = styled.div`
   overflow: hidden;
 
   @media (max-width: 768px) {
-    padding-top: 17%;
+    padding-top: 9%;
     margin-top: 0;
     height: auto;
   }
 `;
 
 const StyledImg = styled.img`
-  width: 80%;
+  width: 100%;
   height: 100%;
   object-fit: cover;
-  margin-left: 10%;
 
   @media (max-width: 1000px) {
     margin-top: 4vw;
@@ -47,7 +53,6 @@ const StyledImg = styled.img`
 
   @media (max-width: 768px) {
     position: static;
-    margin-left: 0%;
     width: 100%;
     height: auto;
     object-fit: contain;
@@ -61,29 +66,21 @@ const StyledMain = styled.section`
   flex-direction: column;
   width: 100%;
   margin-top: -2vw;
+  margin-bottom: 5vw;
 
-
-
-
-   @media (max-width: 1400px) {
-   margin-top: -3vw;
+  @media (max-width: 1400px) {
+    margin-top: -3vw;
   }
-
   @media (max-width: 1000px) {
-   margin-top: -5vw;
+    margin-top: -5vw;
   }
-
   @media (max-width: 800px) {
-   margin-top: -7vw;
+    margin-top: -7vw;
   }
-
   @media (max-width: 600px) {
-   margin-top: -8vw;
+    margin-top: -8vw;
   }
-
-   @media (max-width: 500px) {
-   margin-top: -9vw;
+  @media (max-width: 500px) {
+    margin-top: -9vw;
   }
-
-  
 `;

@@ -25,7 +25,7 @@ const imageUrls: { [key: string]: string[] } = {
     "https://vyacheslavnabrand.ru/SOURCE/images/product_detail_photos/pink2.jpg"
   ],
   "2": ["https://vyacheslavnabrand.ru/SOURCE/images/product_detail_photos/jacket.jpg"],
-  "3": ["https://vyacheslavnabrand.ru/SOURCE/images/product_detail_photos/corset.jpg"],
+  "3": ["https://vyacheslavnabrand.ru/SOURCE/images/product_detail_photos/corset1.png", "https://vyacheslavnabrand.ru/SOURCE/images/product_detail_photos/corset2.png", "https://vyacheslavnabrand.ru/SOURCE/images/product_detail_photos/corset3.png"],
   "4": ["https://vyacheslavnabrand.ru/SOURCE/images/product_detail_photos/shirt1.jpg",
         "https://vyacheslavnabrand.ru/SOURCE/images/product_detail_photos/shirt2.jpg"
   ],
@@ -47,13 +47,30 @@ const imageUrls: { [key: string]: string[] } = {
   "https://vyacheslavnabrand.ru/SOURCE/images/product_detail_photos/blue_podium2.jpg",
   "https://vyacheslavnabrand.ru/SOURCE/images/product_detail_photos/blue_podium3.jpg"],
   "12": ["https://vyacheslavnabrand.ru/SOURCE/images/product_detail_photos/daisy.png",
-  "https://vyacheslavnabrand.ru/SOURCE/images/product_detail_photos/daisy2.png",],
+  "https://vyacheslavnabrand.ru/SOURCE/images/product_detail_photos/daisy2.png"],
+  "13": [
+  "https://vyacheslavnabrand.ru/SOURCE/images/catalog/black_corset1.jpg",
+   "https://vyacheslavnabrand.ru/SOURCE/images/catalog/black_corset2.jpg"
+],
+  "14": [
+    "https://vyacheslavnabrand.ru/SOURCE/images/product_detail_photos/black_odille.png",
+    "https://vyacheslavnabrand.ru/SOURCE/images/product_detail_photos/black_odille2.png",
+  ],
+    "15": [
+    "https://vyacheslavnabrand.ru/SOURCE/images/product_detail_photos/white_odette.png",
+    "https://vyacheslavnabrand.ru/SOURCE/images/product_detail_photos/white_odette2.png",
+    "https://vyacheslavnabrand.ru/SOURCE/images/product_detail_photos/white_odette3.png"
+    
+  ]
+
+
+
+
 };
 
 const modelPaths: { [key: string]: string } = {
   "1": "https://vyacheslavnabrand.ru/SOURCE/models/pink_shirt.glb",
   "2": "https://vyacheslavnabrand.ru/SOURCE/models/jacket_model3.glb",
-  "3": "https://vyacheslavnabrand.ru/SOURCE/models/corset.glb",
   "4": "https://vyacheslavnabrand.ru/SOURCE/models/batist.glb",
   "5": "https://vyacheslavnabrand.ru/SOURCE/models/batist.glb",
   "6": "https://vyacheslavnabrand.ru/SOURCE/models/blue_shirt.glb",
@@ -67,13 +84,13 @@ type ProductDetailProps = {
 const ProductDetail = ({ products }: ProductDetailProps) => {
 
   const { id } = useParams<{ id: string }>();
-  const product = products.find((product) => product.id === id);
+  const product = products.find((product) => String(product.id) === String(id));
   const { addToBasket } = useBasket();
   const [selectedSize, setSelectedSize] = useState<string>('');
   const [animateSizes, setAnimateSizes] = useState(false);
   const [sizeError, setSizeError] = useState(false);
   const [isAddedToBasket, setIsAddedToBasket] = useState(false);
-
+  const [isReserving, setIsReserving] = useState(false);
   const sortSizeChart = (sizeChart: Record<string, Record<string, string>>): Record<string, Record<string, string>> => {
     const priorityOrder = ['S', 'M'];
     return Object.fromEntries(
@@ -88,6 +105,21 @@ const ProductDetail = ({ products }: ProductDetailProps) => {
     );
   };
   
+
+  useEffect(() => {
+  if (product) {
+    console.log('Товар данные:', {
+      id: product.id,
+      title: product.title,
+      sizes: product.sizes,
+      s_qty: product.size_s_quantity,
+      m_qty: product.size_m_quantity,
+      l_qty: (product as any).size_l_quantity || 0, // ВРЕМЕННЫЙ ФИКС
+      c_qty: product.size_c_quantity,
+      i_qty: product.size_i_quantity,
+    });
+  }
+}, [product]);
 
   const [pressedButton, setPressedButton] = useState<string | null>(null);
   const handleMouseDown = (size: string) => {
@@ -126,6 +158,37 @@ const ProductDetail = ({ products }: ProductDetailProps) => {
     }
   }, [sizeError]);
 
+ const getSizeQuantity = (p: ProductType | undefined, size: string) => {
+  if (!p) return 0;
+
+  const s = size.trim();
+
+  if (s === "Единый размер") return p.size_c_quantity || 0;
+  if (s === "Индивидуальный пошив") return p.size_i_quantity || 0;
+
+  const sizeKey = `size_${s.toLowerCase()}_quantity` as keyof ProductType;
+  return (p[sizeKey] as number) || 0;
+};
+
+  useEffect(() => {
+  if (!product) return;
+  if (id === "10" || id === "11") return;
+
+  const available = product.sizes
+    .map((s) => s.trim())
+    .filter((s) => getSizeQuantity(product, s) > 0);
+
+  if (!selectedSize && available.length === 1) {
+    setSelectedSize(available[0]);
+    setSizeError(false);
+  }
+
+  if (available.length === 0) {
+    setSelectedSize('');
+  }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+}, [product, id]);
+
   if (!product) {
     return <div>Товар не найден</div>;
   }
@@ -133,7 +196,7 @@ const ProductDetail = ({ products }: ProductDetailProps) => {
   const modelPath = modelPaths[id || ''];
 
   const handleSizeChange = (size: string) => {
-    if (getSizeQuantity(size) > 0) {
+    if (getSizeQuantity(product, size) > 0) {
       setSelectedSize(size);
       setSizeError(false);
 
@@ -141,60 +204,102 @@ const ProductDetail = ({ products }: ProductDetailProps) => {
   };
 
   
+const handleAddToBasket = async () => {
+  if (isReserving) return;
+  setIsReserving(true);
+  
+  // Определяем размер
+  let sizeToReserve = '';
+  if (product.sizes.length === 1 && product.sizes[0] === "Единый размер") {
+    sizeToReserve = "Единый размер";
+  } else if (product.sizes.length === 1 && product.sizes[0] === "Индивидуальный пошив") {
+    sizeToReserve = "Индивидуальный пошив";
+ } else if (selectedSize) {
+  sizeToReserve = selectedSize;
+} else {
+  const available = product.sizes
+    .map((s) => s.trim())
+    .filter((s) => getSizeQuantity(product,s) > 0);
 
-  const handleAddToBasket = () => {
-    if (product.sizes.length === 1 && product.sizes[0] === "Единый размер") {
-      const productWithSize: ProductType = { ...product, sizeSelect: "Единый размер" };
-      addToBasket(productWithSize);
-      setIsAddedToBasket(true);
-      setSizeError(false);
-    } else if (product.sizes.length === 1 && product.sizes[0] === "Индивидуальный пошив") {
-      const productWithSize: ProductType = { ...product, sizeSelect: "Индивидуальный пошив" };
-      addToBasket(productWithSize);
-      setIsAddedToBasket(true);
-      setSizeError(false);
-    } else if (product.sizes.filter((size) => getSizeQuantity(size) > 0).length === 1) {
-      const availableSize = product.sizes.find((size) => getSizeQuantity(size) > 0);
-      if (availableSize) {
-        const productWithSize: ProductType = { ...product, sizeSelect: availableSize };
-        addToBasket(productWithSize);
-        setIsAddedToBasket(true);
-        setSizeError(false);
-      }
-    } else if (selectedSize) {
-      const productWithSize: ProductType = { ...product, sizeSelect: selectedSize };
-      addToBasket(productWithSize);
-      setSelectedSize('');
-      setIsAddedToBasket(true);
-      setSizeError(false);
-    } else {
-      setSizeError(true);
-      setAnimateSizes(true);
-      setTimeout(() => setAnimateSizes(false), 500);
-    }
-  };
+  if (available.length === 1) {
+    sizeToReserve = available[0]; // авто S/M если доступен только один
+  } else {
+    setSizeError(true);
+    setAnimateSizes(true);
+    setTimeout(() => setAnimateSizes(false), 500);
+    setIsReserving(false);
+    return;
+  }
+}
 
-
-  const areSizesAvailable = () => {
-    if (!product) return false;
+  // 1. РЕЗЕРВИРУЕМ товар
+  try {
+    const reserveRes = await fetch('https://vyacheslavnabrand.ru/cart_reservation.php', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        product_id: product.id,
+        size: sizeToReserve,
+        quantity: 1
+      })
+    });
     
-    // Для товаров 10 и 11 не показываем блок с размерами вообще
-    if (id === "10" || id === "11") return false;
+    const reserveData = await reserveRes.json();
     
-    return product.sizes.length === 1 && product.sizes[0] === "Единый размер"
-      ? product.size_c_quantity > 0
-      : product.sizes.some((size) => getSizeQuantity(size) > 0);
-  };
-
-
-
-  const getSizeQuantity = (size: string) => {
-    if (size === "Единый размер") {
-      return product.size_c_quantity || 0; 
+    if (!reserveData.success) {
+      alert(reserveData.error || 'Товар закончился');
+      setIsReserving(false);
+      return;
     }
-    const sizeKey = `size_${size.toLowerCase()}_quantity` as keyof ProductType;
-    return product[sizeKey] as number || 0;
-  };
+
+    // 2. Добавляем в корзину с ID резерва
+    const productWithReservation = {
+      ...product,
+      sizeSelect: sizeToReserve,
+      reservation_id: reserveData.reservation_id
+    };
+    
+    addToBasket(productWithReservation);
+    setIsAddedToBasket(true);
+    setSizeError(false);
+    setSelectedSize('');
+    
+    // 3. Авто-освобождение через 15 минут
+    setTimeout(() => {
+      fetch(`https://vyacheslavnabrand.ru/release_reservation.php?reservation_id=${reserveData.reservation_id}`);
+    }, 15 * 60 * 1000);
+    
+  } catch (error) {
+    alert('Ошибка резервации товара');
+  } finally {
+    setIsReserving(false);
+  }
+};
+
+const areSizesAvailable = () => {
+  if (!product) return false;
+  
+  // Для товаров 10 и 11 не показываем блок с размерами вообще
+  if (id === "10" || id === "11") return false;
+  
+  // ВРЕМЕННЫЙ ФИКС - приведение типов
+  const productAny = product as any;
+  
+  // Проверяем ВСЕ размеры
+  const hasAnySizeAvailable = product.sizes.some((size) => {
+    if (size === "Единый размер") return product.size_c_quantity > 0;
+    if (size === "Индивидуальный пошив") return product.size_i_quantity > 0;
+    if (size === "S") return product.size_s_quantity > 0;
+    if (size === "M") return product.size_m_quantity > 0;
+    if (size === "L") return productAny.size_l_quantity > 0;
+    return false;
+  });
+  
+  return hasAnySizeAvailable;
+};
+
+
+
 
   const getHeaderNames = (sizeChart: Record<string, any>) => {
     const firstSize = Object.keys(sizeChart)[0];
@@ -249,8 +354,8 @@ const ProductDetail = ({ products }: ProductDetailProps) => {
       case 'chest_circumference':
         return (
           <>
-            Полуобхват
-            груди
+          Обхват 
+          груди
           </>
         );
       case 'waist_circumference':
@@ -279,6 +384,9 @@ const ProductDetail = ({ products }: ProductDetailProps) => {
         return key;
     }
   };
+
+
+
 
   return (
     <ThemeProvider theme={themes}>
@@ -338,9 +446,9 @@ const ProductDetail = ({ products }: ProductDetailProps) => {
         ) : (
           <NoSizesAvailable>Нет в наличии</NoSizesAvailable>
         )
-      ) : product.sizes.filter((size) => getSizeQuantity(size) > 0).length === 1 ? (
+      ) : product.sizes.filter((size) => getSizeQuantity(product,size) > 0).length === 1 ? (
         product.sizes.map((size) =>
-          getSizeQuantity(size) > 0 ? (
+          getSizeQuantity(product,size) > 0 ? (
             <OneSizeAvailable key={size}>{size}</OneSizeAvailable>
           ) : null
         )
@@ -350,7 +458,7 @@ const ProductDetail = ({ products }: ProductDetailProps) => {
             key={size}
             $isselected={size === selectedSize}
             $ispressed={pressedButton === size}
-            $isavailable={getSizeQuantity(size) > 0}
+            $isavailable={getSizeQuantity(product,size) > 0}
             onClick={() => {
               setPressedButton(size);
               setTimeout(() => setPressedButton(null), 200);
@@ -420,10 +528,11 @@ const MobileLayout = styled.div`
   flex-direction: column;
 
   @media (max-width: 768px) {
-    flex-direction: row; /* В мобильной версии располагаем компоненты горизонтально */
-    justify-content: space-between; /* Разделяем их по краям */
-    align-items: center; /* Центрируем их по вертикали */
-    gap: 8px; /* Уменьшаем расстояние между компонентами */
+    width: 100%;            /* <-- добавь */
+    flex-direction: row;
+    justify-content: flex-start;   /* было space-between */
+    align-items: flex-start;
+    gap: 12px;
   }
 `;
 
@@ -467,7 +576,7 @@ const ValentineLabelBlock = styled.div`
 
 const SizeSelectorWrapper = styled.div`
   position: relative; 
-  margin-top: 10px; 
+  margin-top: 5px; 
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -484,7 +593,7 @@ const PositioningWrapper = styled.div`
     flex-direction: column;
     justify-content: flex-end;
     align-items: flex-start;
-    gap: 8px;
+    gap: 12px;
   }
 `;
 
@@ -599,11 +708,12 @@ const TitleAndPrice = styled.div`
 const PriceSize = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 4px; /* Меньше расстояние между ценой и размерами */
+  gap: 4px;
 
   @media (max-width: 768px) {
+    margin-left: auto;
     align-items: flex-end;
-    margin-top: 4vw;
+    text-align: right;
   }
 `;
 
@@ -613,11 +723,12 @@ const PriceSize = styled.div`
 const TitleCompoundWrapper = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 8px; /* Добавляем расстояние между Title и Compound */
+  gap: 8px;
 
   @media (max-width: 768px) {
-
-    gap: 10px; /* Меньший отступ для мобильной версии */
+    gap: 0;
+    flex: 1;        /* важно */
+    min-width: 0;   /* чтобы нормально ужимался */
   }
 `;
 
@@ -694,11 +805,14 @@ const LeftGrid = styled(Grid)`
 
 
 const RightGrid = styled(Grid)`
+  &&{
+    margin-left: -5vw;
 
-&&{
-
- margin-left: -5vw;
-   
+    @media (max-width: 768px) {
+      margin-left: 0 !important;
+      width: 100%;
+    }
+  }
 `;
 
 const StyledProductPage = styled.div`
@@ -733,8 +847,8 @@ const SizeChartWrapper = styled.table`
 
 @media (max-width:768px) {
   margin-top: 0px;
-  width: 105%;
-  margin-left: 4vw;
+  width: 100%;
+  margin-left: -1vw;
 
   th, td {
     white-space: normal !important;  /* Add !important to override */

@@ -1,8 +1,10 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from "react";
 import { ProductType } from "../../store/useProducts";
 
-type BasketProductType = ProductType & { quantity: number }; // Добавляем поле quantity для товаров в корзине
-
+type BasketProductType = ProductType & { 
+  quantity: number;
+  reservation_id?: string; // ДОБАВЬ ЭТО
+};
 type BasketContextType = {
   basket: BasketProductType[];
   addToBasket: (product: ProductType) => void;

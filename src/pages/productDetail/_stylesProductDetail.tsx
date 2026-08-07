@@ -39,7 +39,6 @@ export const Title = styled.h2`
   font-size: calc(1.2vw + 5px);   
       @media (max-width: 768px) {
         margin-top: 1vw;
-        margin-left: 5vw;
         font-size: 4.3vw;
 }
 
@@ -63,8 +62,9 @@ export const Compound = styled.p`
   font-size: calc(0.7vw + 5px);   
   color: #C4C4C4;;   
         @media (max-width: 768px) {
-          font-size: calc(1.2vw + 8px); 
-          margin-top: 0.4vw;
+          font-size: calc(1vw + 10px); 
+          margin-top: 0;
+          margin-bottom: 1vw;
 }
      
 `;

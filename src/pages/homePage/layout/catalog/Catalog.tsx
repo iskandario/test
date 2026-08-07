@@ -12,20 +12,73 @@ type CatalogProps = {
 export const Catalog = forwardRef<HTMLDivElement, CatalogProps>(({ products }, ref) => {
   const navigate = useNavigate();
 
-  const imageUrls: { [key: string]: string } = {
-    valentineHim: 'https://vyacheslavnabrand.ru/SOURCE/images/catalog/valentine_him.jpg',
-    valentineHer: 'https://vyacheslavnabrand.ru/SOURCE/images/catalog/valentine_her.jpg',
-    jacket: 'https://vyacheslavnabrand.ru/SOURCE/images/catalog/jacket.jpg',
-    corset: 'https://vyacheslavnabrand.ru/SOURCE/images/catalog/corset.jpg',
-    dress: 'https://vyacheslavnabrand.ru/SOURCE/images/catalog/dress.jpg',
-    batistSet: 'https://vyacheslavnabrand.ru/SOURCE/images/catalog/batist_big.jpg',
-    skirt: 'https://vyacheslavnabrand.ru/SOURCE/images/catalog/skirt.jpg',
-    whitePodium: 'https://vyacheslavnabrand.ru/SOURCE/images/catalog/white_podium1.jpg',
-    bluePodium: 'https://vyacheslavnabrand.ru/SOURCE/images/catalog/blue_podium1.jpg',
-    whitePodium4: 'https://vyacheslavnabrand.ru/SOURCE/images/catalog/white_podium4.jpg',
-    whitePodium5: 'https://vyacheslavnabrand.ru/SOURCE/images/catalog/white_podium5.jpg',
-    blueShirt: 'https://vyacheslavnabrand.ru/SOURCE/images/catalog/blue_shirt.jpg',
-    daisyDress: 'https://vyacheslavnabrand.ru/SOURCE/images/catalog/daisy_dress.png',
+  const imageUrls: { [key: string]: { desktop: string; mobile: string } } = {
+    valentineHim: { 
+      desktop: 'https://vyacheslavnabrand.ru/SOURCE/images/catalog/valentine_him.jpg', 
+      mobile: 'https://vyacheslavnabrand.ru/SOURCE/images/catalog/valentine_him.jpg' 
+    },
+    valentineHer: { 
+      desktop: 'https://vyacheslavnabrand.ru/SOURCE/images/catalog/valentine_her.jpg', 
+      mobile: 'https://vyacheslavnabrand.ru/SOURCE/images/catalog/valentine_her.jpg' 
+    },
+    jacket: { 
+      desktop: 'https://vyacheslavnabrand.ru/SOURCE/images/catalog/jacket.jpg', 
+      mobile: 'https://vyacheslavnabrand.ru/SOURCE/images/catalog/jacket.jpg' 
+    },
+    corset: { 
+      desktop: 'https://vyacheslavnabrand.ru/SOURCE/images/catalog/corset1.png', 
+      mobile: 'https://vyacheslavnabrand.ru/SOURCE/images/catalog/corset2.png' 
+    },
+    dress: { 
+      desktop: 'https://vyacheslavnabrand.ru/SOURCE/images/catalog/dress.jpg', 
+      mobile: 'https://vyacheslavnabrand.ru/SOURCE/images/catalog/dress.jpg' 
+    },
+    batistSet: { 
+      desktop: 'https://vyacheslavnabrand.ru/SOURCE/images/catalog/batist_big.jpg', 
+      mobile: 'https://vyacheslavnabrand.ru/SOURCE/images/catalog/batist_big.jpg' 
+    },
+    skirt: { 
+      desktop: 'https://vyacheslavnabrand.ru/SOURCE/images/catalog/skirt.jpg', 
+      mobile: 'https://vyacheslavnabrand.ru/SOURCE/images/catalog/skirt.jpg' 
+    },
+    whitePodium: { 
+      desktop: 'https://vyacheslavnabrand.ru/SOURCE/images/catalog/white_podium1.jpg', 
+      mobile: 'https://vyacheslavnabrand.ru/SOURCE/images/catalog/white_podium1.jpg' 
+    },
+
+    blackCorset: {
+      desktop: 'https://vyacheslavnabrand.ru/SOURCE/images/catalog/black_corset1.jpg',
+      mobile: 'https://vyacheslavnabrand.ru/SOURCE/images/catalog/black_corset1.jpg'
+    },
+
+    bluePodium: { 
+      desktop: 'https://vyacheslavnabrand.ru/SOURCE/images/catalog/blue_podium1.jpg', 
+      mobile: 'https://vyacheslavnabrand.ru/SOURCE/images/catalog/blue_podium1.jpg' 
+    },
+    whitePodium4: { 
+      desktop: 'https://vyacheslavnabrand.ru/SOURCE/images/catalog/white_podium4.jpg', 
+      mobile: 'https://vyacheslavnabrand.ru/SOURCE/images/catalog/white_podium4.jpg' 
+    },
+    whitePodium5: { 
+      desktop: 'https://vyacheslavnabrand.ru/SOURCE/images/catalog/white_podium5.jpg', 
+      mobile: 'https://vyacheslavnabrand.ru/SOURCE/images/catalog/white_podium5.jpg' 
+    },
+    blueShirt: { 
+      desktop: 'https://vyacheslavnabrand.ru/SOURCE/images/catalog/blue_shirt.jpg', 
+      mobile: 'https://vyacheslavnabrand.ru/SOURCE/images/catalog/blue_shirt.jpg' 
+    },
+    daisyDress: { 
+      desktop: 'https://vyacheslavnabrand.ru/SOURCE/images/catalog/daisy_dress.png', 
+      mobile: 'https://vyacheslavnabrand.ru/SOURCE/images/catalog/daisy_dress.png' 
+    },
+    blackOdille: {
+      desktop: 'https://vyacheslavnabrand.ru/SOURCE/images/product_detail_photos/black_odille.png',
+      mobile: 'https://vyacheslavnabrand.ru/SOURCE/images/product_detail_photos/black_odille.png'
+    },
+    whiteOdette: {
+      desktop: 'https://vyacheslavnabrand.ru/SOURCE/images/product_detail_photos/white_odette.png',
+      mobile: 'https://vyacheslavnabrand.ru/SOURCE/images/product_detail_photos/white_odette.png'
+    },
 
 
   };
@@ -37,24 +90,38 @@ export const Catalog = forwardRef<HTMLDivElement, CatalogProps>(({ products }, r
   return (
     <StyledCatalog ref={ref}>
       <TopRow>
-        <SmallCard key={'10'} onClick={() => handleCardClick('10')}>
-          <Image src={imageUrls.whitePodium} alt="Подиум платье" />
-          <Title>Podium white dress →</Title>
-        </SmallCard>
+        {/* Левая колонка с подиумным платьем и корсетом */}
+        <LeftColumn>
+          <SmallCard key={'15'} onClick={() => handleCardClick('15')}>
+            <Image src={imageUrls.whiteOdette.desktop} alt="Блузка Odette" />
+            <Title>Блузка Одетт →</Title>
+          </SmallCard>
+          
+          {/* Карточка корсета с разными изображениями */}
+          <CorsetCard key={'corset'} onClick={() => handleCardClick('3')}>
+            <picture>
+              <source media="(min-width: 769px)" srcSet={imageUrls.corset.desktop} />
+              <source media="(max-width: 768px)" srcSet={imageUrls.corset.mobile} />
+              <CorsetImage 
+                src={imageUrls.corset.desktop} 
+                alt="Корсет" 
+              />
+            </picture>
+            <Title>Корсет "Белый лебедь" →</Title>
+          </CorsetCard>
+        </LeftColumn>
 
         <DoubleCard>
-          <MediumCard key={'8'} onClick={() => handleCardClick('8')}>
-            <Image src={imageUrls.valentineHim} alt="Рубашка for HIM" />
-            <Title>
-              Рубашка Valentine’s → <br />
-              <ValentineLabel>for HIM</ValentineLabel>
-            </Title>
+          <MediumCard key={'13'} onClick={() => handleCardClick('13')}>
+            <Image src={imageUrls.blackCorset.desktop} alt="Корсет Black Swan" />
+            <Title>Корсет "Черный лебедь" →</Title>
           </MediumCard>
 
-          <MediumCard key={'11'} onClick={() => handleCardClick('11')}>
-            <Image src={imageUrls.bluePodium} alt="Подиум голубое платье" />
+
+          <MediumCard key={'14'} onClick={() => handleCardClick('14')}>
+            <Image src={imageUrls.blackOdille.desktop} alt="Блузка Odille" />
             <Title>
-              Podium dress → <br />
+              Блузка Одиль → <br />
             </Title>
           </MediumCard>
         </DoubleCard>
@@ -62,8 +129,8 @@ export const Catalog = forwardRef<HTMLDivElement, CatalogProps>(({ products }, r
 
       <BottomRow>
         <GroupedCardContainer>
-          <Image src={imageUrls.batistSet} alt="Batist Set" />
-          <BatistTitle>Batist Set</BatistTitle>
+          <Image src={imageUrls.batistSet.desktop} alt="Batist Set" />
+          <BatistTitle>Набор из батиста</BatistTitle>
           <GroupedButtons>
             <Title onClick={() => handleCardClick('4')}>Рубашка →</Title>
             <Title onClick={() => handleCardClick('5')}>Юбка →</Title>
@@ -71,18 +138,16 @@ export const Catalog = forwardRef<HTMLDivElement, CatalogProps>(({ products }, r
         </GroupedCardContainer>
 
         <StackedCard>
-  <MediumCard onClick={() => handleCardClick('6')}>
-    <Image src={imageUrls.blueShirt} alt="Blue" />
-              <Title>Рубашка BLUE→</Title>
-  </MediumCard>
+          <MediumCard onClick={() => handleCardClick('6')}>
+            <Image src={imageUrls.blueShirt.desktop} alt="Blue" />
+            <Title>Рубашка приталенная →</Title>
+          </MediumCard>
 
-  <MediumCard onClick={() => handleCardClick('12')}>
-    <Image src={imageUrls.daisyDress} alt="Daisy" />
-                  <Title>Платье Daisy→</Title>
-
-  </MediumCard>
-</StackedCard>
-
+          <MediumCard onClick={() => handleCardClick('12')}>
+            <Image src={imageUrls.daisyDress.desktop} alt="Daisy" />
+            <Title>Платье Дейзи →</Title>
+          </MediumCard>
+        </StackedCard>
       </BottomRow>
     </StyledCatalog>
   );
@@ -95,6 +160,7 @@ const StyledCatalog = styled.section`
   flex-direction: column;
   gap: 6vw;
   margin: 7vw;
+  margin-top: 10vw;
   padding: 2vw;
   max-width: 100vw;
 
@@ -112,6 +178,37 @@ const TopRow = styled.div`
   @media (max-width: 768px) {
     flex-direction: column;
   }
+`;
+
+// Новая левая колонка для подиумного платья и корсета
+const LeftColumn = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 4vw;
+  width: 12vw;
+
+  @media (max-width: 768px) {
+    width: 100%;
+    gap: 5vw;
+  }
+`;
+
+// Специальная карточка для корсета
+const CorsetCard = styled.div`
+  width: 12vw;
+  cursor: pointer;
+
+  @media (max-width: 768px) {
+    width: 100%;
+  }
+`;
+
+// Изображение корсета
+const CorsetImage = styled.img`
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  object-position: center;
 `;
 
 const BottomRow = styled.div`
@@ -136,6 +233,7 @@ const SmallCard = styled.div`
   @media (max-width: 768px) {
     width: 100%;
     height: auto;
+    margin-top: 0;
   }
 `;
 
@@ -197,7 +295,6 @@ const StackedCard = styled.div`
     width: 100%;
     gap: 5vw;
     margin-top: 0vw;
-
   }
 `;
 
@@ -217,13 +314,13 @@ const ValentineLabel = styled.span`
 `;
 
 export const Title = styled.h3`
-  display: inline-block; /* важно */
+  display: inline-block;
   font-family: "Fira Mono", monospace;
-  font-size: calc(1.2vw + 5px);
+  font-size: calc(1vw + 3px);
   font-weight: 400;
   margin-top: 1rem;
   color: black;
-  border-bottom: 1px solid ${theme.secondaryTextColor}; /* подчёркивание только под текстом */
+  border-bottom: 1px solid ${theme.secondaryTextColor};
 
   &:hover {
     cursor: pointer;
@@ -237,8 +334,6 @@ export const Title = styled.h3`
     font-size: 3.5vw;
   }
 `;
-
-
 
 export const BatistTitle = styled.h3`
   white-space: nowrap;

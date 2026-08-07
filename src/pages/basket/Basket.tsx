@@ -11,7 +11,7 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 const imageUrls: { [key: string]: string } = {
   "1": "https://vyacheslavnabrand.ru/SOURCE/images/catalog/pink_shirt1.jpg",
   "2": "https://vyacheslavnabrand.ru/SOURCE/images/catalog/jacket.jpg",
-  "3": "https://vyacheslavnabrand.ru/SOURCE/images/catalog/corset.jpg",
+  "3": "https://vyacheslavnabrand.ru/SOURCE/images/product_detail_photos/corset1.png",
   "4": "https://vyacheslavnabrand.ru/SOURCE/images/catalog/shirt2.jpg",
   "5": "https://vyacheslavnabrand.ru/SOURCE/images/catalog/skirt1.jpg",
   "6": "https://vyacheslavnabrand.ru/SOURCE/images/catalog/blue_shirt_catalog.jpg",
@@ -20,6 +20,10 @@ const imageUrls: { [key: string]: string } = {
   "9": 'https://vyacheslavnabrand.ru/SOURCE/images/catalog/valentine_her.jpg',
   "10": 'https://vyacheslavnabrand.ru/SOURCE/images/catalog/white_podium1.jpg',
   "11": 'https://vyacheslavnabrand.ru/SOURCE/images/catalog/blue_podium1.jpg',
+  "12": 'https://vyacheslavnabrand.ru/SOURCE/images/catalog/daisy_dress.png',
+  "13": "https://vyacheslavnabrand.ru/SOURCE/images/catalog/black_corset1.jpg",
+  "14": "https://vyacheslavnabrand.ru/SOURCE/images/product_detail_photos/black_odille.png",
+  "15": "https://vyacheslavnabrand.ru/SOURCE/images/product_detail_photos/white_odette.png",
 
 };
 
@@ -28,7 +32,7 @@ type AvailabilityMap = {
     size_s_quantity: number;
     size_m_quantity: number;
     size_c_quantity: number;
-    size_l_quantity: number; 
+    size_l_quantity: number;
     size_i_quantity: number;
   };
 };
@@ -54,13 +58,13 @@ export const Basket = () => {
           size_s_quantity: product.size_s_quantity,
           size_m_quantity: product.size_m_quantity,
           size_c_quantity: product.size_c_quantity,
-          size_l_quantity: product.size_l_quantity, 
+          size_l_quantity: product.size_l_quantity,
           size_i_quantity: product.size_i_quantity,
         };
-        
+
         return acc;
       }, {});
-      
+
 
       setAvailability(availabilityMap);
       console.log("Availability map:", availabilityMap["8"], availabilityMap["9"]);
@@ -70,30 +74,54 @@ export const Basket = () => {
     }
   };
 
+  // ДОБАВЬ эту функцию в компонент Basket, после fetchProductAvailability
+  const handleRemoveWithReservation = async (product: any) => {
+    // Освобождаем резерв если есть
+    if (product.reservation_id) {
+      try {
+        await fetch(`https://vyacheslavnabrand.ru/release_reservation.php?reservation_id=${product.reservation_id}`);
+      } catch (error) {
+        console.error('Ошибка освобождения резерва:', error);
+      }
+    }
+
+    // Удаляем из корзины
+    removeProductToBasket(product.id, product.sizeSelect || "");
+  };
+
   React.useEffect(() => {
     fetchProductAvailability();
   }, []);
-  
+
   const handleOrderClick = () => {
     let allAvailable = true;
     const newNotifications: Record<string, string> = {};
-
+    // Проверяем есть ли резервы
+const hasReservations = basket.every(product => product.reservation_id);
+if (!hasReservations) {
+  alert('Некоторые товары потеряли резерв. Обновите корзину.');
+  return;
+}
     basket.forEach((product) => {
       const productAvailability = availability[product.id];
       if (!productAvailability || !product.sizeSelect) return;
 
       let availableQuantity = 0;
+
       if (product.sizeSelect === "S") {
         availableQuantity = productAvailability.size_s_quantity;
       } else if (product.sizeSelect === "M") {
         availableQuantity = productAvailability.size_m_quantity;
+      } else if (product.sizeSelect === "L") {
+        availableQuantity = productAvailability.size_l_quantity;
       } else if (product.sizeSelect === "Единый размер") {
         availableQuantity = productAvailability.size_c_quantity;
+      } else if (product.sizeSelect === "Индивидуальный пошив") {
+        availableQuantity = productAvailability.size_i_quantity;
+      } else {
+        availableQuantity = 0;
       }
-      if (product.sizeSelect === "L") {
-        availableQuantity = productAvailability.size_l_quantity;
-      }
-      
+
 
       if (product.quantity > availableQuantity) {
         allAvailable = false;
@@ -119,15 +147,15 @@ export const Basket = () => {
   const isSizeAvailable = (productId: string, size: string) => {
     const productAvailability = availability[productId];
     if (!productAvailability) return false;
-  
+
     if (size === "S") return productAvailability.size_s_quantity > 0;
     if (size === "M") return productAvailability.size_m_quantity > 0;
     if (size === "L") return productAvailability.size_l_quantity > 0; // ✅ ДОБАВЬ
     if (size === "Единый размер") return productAvailability.size_c_quantity > 0;
-  
+
     return false;
   };
-  
+
 
   return (
     <StyledBasket>
@@ -140,8 +168,8 @@ export const Basket = () => {
       ) : (
         <BasketTable>
           <TableHeader>
-          <ColumnProduct>Товар</ColumnProduct>
-          <ColumnSize>Размер</ColumnSize>
+            <ColumnProduct>Товар</ColumnProduct>
+            <ColumnSize>Размер</ColumnSize>
             <ColumnKolvo>Кол-во</ColumnKolvo>
             <ColumnPriceHead>Цена</ColumnPriceHead>
             <Column />
@@ -149,101 +177,101 @@ export const Basket = () => {
           {basket.map((product) => (
             <TableRow key={`${product.id}-${product.sizeSelect}`}>
 
-                <ImageContainer>
-                  <ProductImage src={imageUrls[product.id]} alt={product.title} />
-                </ImageContainer>
+              <ImageContainer>
+                <ProductImage src={imageUrls[product.id]} alt={product.title} />
+              </ImageContainer>
 
-                <DetailsContainer>
-                  <TitleCompoundWrapper>
+              <DetailsContainer>
+                <TitleCompoundWrapper>
                   <ProductTitle>{product.title}</ProductTitle>
                   <ProductCompound>{product.compound}
-                  {notifications[product.id] && (
+                    {notifications[product.id] && (
                       <StyledNotification>{notifications[product.id]}</StyledNotification>
                     )}
                   </ProductCompound>
-                  
-                  </TitleCompoundWrapper>
 
-              <SelectorsColumn>
-                {product.sizes.length === 1 ? (
-                  // Если размер только один, отображаем черточку
-                  <SingleSize>Единый размер</SingleSize>
-                ) : (
-                  // Если размеров несколько, отображаем Select
-                  <StyledSelect
-                    value={product.sizeSelect}
-                    onChange={(e) =>
-                      updateProductSize(product.id, product.sizeSelect || "", e.target.value as string)
-                    }
-                    displayEmpty
-                    IconComponent={KeyboardArrowDownIcon}
-                  >
-                    {product.sizes.map((size) => (
-                      <StyledMenuItem key={size} value={size} 
-                      disabled={!isSizeAvailable(product.id, size)}
+                </TitleCompoundWrapper>
 
-                      sx={{
-                        '&.Mui-selected': {
-                          backgroundColor: '#bcbcbc30',  
-                        },
-                      }}>
-                        {size}
-                      </StyledMenuItem>
-                    ))}
-                  </StyledSelect>
-                )}
-              </SelectorsColumn>
-              <Column>
-              <QuantityWrapper>
-              <QuantityControl>
-              <QuantityButton
-                onClick={() =>
-                  updateProductQuantity(product.id, product.sizeSelect || "", product.quantity - 1)
-                }
-              >
-                -
-              </QuantityButton>
-              <Quantity>{product.quantity}</Quantity>
-              <QuantityButton
-                onClick={() =>
-                  updateProductQuantity(product.id, product.sizeSelect || "", product.quantity + 1)
-                }
-              >
-                +
-              </QuantityButton>
-            </QuantityControl>
-            </QuantityWrapper>
-            
+                <SelectorsColumn>
+                  {product.sizes.length === 1 ? (
+                    // Если размер только один, отображаем черточку
+                    <SingleSize>Единый размер</SingleSize>
+                  ) : (
+                    // Если размеров несколько, отображаем Select
+                    <StyledSelect
+                      value={product.sizeSelect}
+                      onChange={(e) =>
+                        updateProductSize(product.id, product.sizeSelect || "", e.target.value as string)
+                      }
+                      displayEmpty
+                      IconComponent={KeyboardArrowDownIcon}
+                    >
+                      {product.sizes.map((size) => (
+                        <StyledMenuItem key={size} value={size}
+                          disabled={!isSizeAvailable(product.id, size)}
 
-              </Column>
-              <ColumnPrice>{product.price * product.quantity}₽</ColumnPrice>
+                          sx={{
+                            '&.Mui-selected': {
+                              backgroundColor: '#bcbcbc30',
+                            },
+                          }}>
+                          {size}
+                        </StyledMenuItem>
+                      ))}
+                    </StyledSelect>
+                  )}
+                </SelectorsColumn>
+                <Column>
+                  <QuantityWrapper>
+                    <QuantityControl>
+                      <QuantityButton
+                        onClick={() =>
+                          updateProductQuantity(product.id, product.sizeSelect || "", product.quantity - 1)
+                        }
+                      >
+                        -
+                      </QuantityButton>
+                      <Quantity>{product.quantity}</Quantity>
+                      <QuantityButton
+                        onClick={() =>
+                          updateProductQuantity(product.id, product.sizeSelect || "", product.quantity + 1)
+                        }
+                      >
+                        +
+                      </QuantityButton>
+                    </QuantityControl>
+                  </QuantityWrapper>
+
+
+                </Column>
+                <ColumnPrice>{product.price * product.quantity}₽</ColumnPrice>
 
               </DetailsContainer>
 
               <RemoveButtonContainer>
 
                 <RemoveButton
-                  onClick={() => removeProductToBasket(product.id, product.sizeSelect || "")}
+                  onClick={() => handleRemoveWithReservation(product)}
                 >
                   ×
                 </RemoveButton>
-                </RemoveButtonContainer>
+              </RemoveButtonContainer>
 
             </TableRow>
           ))}
         </BasketTable>
       )}
       <SummaryDiv>
-      <StyledFooter>
-        <TotalText>
-          Всего:{" "} 
-          {basket.reduce((sum, product) => sum + product.price * product.quantity, 0)}₽ /
-        </TotalText>
-        {basket.length > 0 && ( // Проверка на пустоту корзины
-    <StyledButton sx={{ textTransform: "none" }} onClick={handleOrderClick}>
-      Оформить сейчас
-    </StyledButton>
-  )}
+        <StyledFooter>
+          <TotalText>
+            Всего:{" "}
+            {basket.reduce((sum, product) => sum + product.price * product.quantity, 0)}₽ /
+          </TotalText>
+          {basket.length > 0 && ( // Проверка на пустоту корзины
+            <StyledButton sx={{ textTransform: "none" }} onClick={handleOrderClick}>
+              Оформить сейчас
+            </StyledButton>
+          )}
         </StyledFooter>
       </SummaryDiv>
     </StyledBasket>

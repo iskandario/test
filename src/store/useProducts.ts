@@ -15,6 +15,7 @@ export type SizeChart = {
     size_s_quantity: number; // Количество для размера S
     size_m_quantity: number; // Количество для размера M
     size_c_quantity: number; 
+    size_l_quantity: number; // ДОБАВЬ ЭТО
     size_i_quantity: number;
     size_chart: Record<string, Record<string, string>>; // Размерная сетка
     sizeSelect?: string; // Выбранный размер (опционально)
